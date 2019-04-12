@@ -22,8 +22,8 @@ def retrieve_articles():
 
         # Retrieve the story URL
         article_header = article_block.find('h3', attrs={'class': 'entry-title td-module-title'})
-        story_url = article_header.find('a', href=True)['href']
-        print('Found link: {}'.format(story_url))
+        title_link = article_header.find('a', href=True)['href']
+        print('Found link: {}'.format(title_link))
 
         # Retrieve the article category
         article_div = article_block.find('div', attrs={'class': 'td-module-meta-info'})
@@ -31,7 +31,7 @@ def retrieve_articles():
         print('Found category: {}'.format(category))
         article = {
             'image_url': image_url,
-            'story_url': story_url,
+            'title_link': title_link,
             'category': category,
             'title': title
         }
