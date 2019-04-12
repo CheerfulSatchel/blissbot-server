@@ -2,10 +2,11 @@ import urllib3
 from . import constants
 from bs4 import BeautifulSoup
 
+HTTP = urllib3.PoolManager()
+
 def retrieve_articles():
     articles = []
-    http = urllib3.PoolManager()
-    response = http.request('GET', constants.NEWS_ENDPOINT, timeout=constants.TIMEOUT_SECONDS)
+    response = HTTP.request('GET', constants.NEWS_ENDPOINT, timeout=constants.TIMEOUT_SECONDS)
 
     soup = BeautifulSoup(response.data, 'html.parser')
     main_content = soup.find('div', attrs={'class': 'td-ss-main-content'})
@@ -25,6 +26,9 @@ def retrieve_articles():
         title_link = article_header.find('a', href=True)['href']
         print('Found link: {}'.format(title_link))
 
+        meta_content = get_article_meta_content(title_link)
+        print('Found meta content: {}'.format(meta_content))
+
         # Retrieve the article category
         article_div = article_block.find('div', attrs={'class': 'td-module-meta-info'})
         category = article_div.find('a').text
@@ -32,6 +36,7 @@ def retrieve_articles():
         article = {
             'image_url': image_url,
             'title_link': title_link,
+            'meta_content': meta_content,
             'category': category,
             'title': title
         }
@@ -39,6 +44,16 @@ def retrieve_articles():
         articles.append(article)
     
     return articles
+
+def get_article_meta_content(article_link):
+    response = HTTP.request('GET', article_link, timeout=constants.TIMEOUT_SECONDS)
+    soup = BeautifulSoup(response.data, 'html.parser')
+
+    meta = soup.find('meta', attrs={'name': 'description'})
+
+    return meta['content']
+
+
 
 
 if __name__ == '__main__':
