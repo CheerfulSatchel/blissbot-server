@@ -1,11 +1,11 @@
 import random
 import json
-from utilities.sitescraper import retrieve_article_urls
+from utilities.sitescraper import retrieve_articles
 from flask_api import FlaskAPI
 
 APP = FlaskAPI(__name__)
 
-NEWS_URLS = retrieve_article_urls()
+NEWS_URLS = retrieve_articles()
 
 @APP.route('/example/')
 def example():
