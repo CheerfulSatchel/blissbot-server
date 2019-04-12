@@ -11,7 +11,7 @@ NEWS_URLS = retrieve_articles()
 def example():
     return {'hello': 'world'}
 
-@APP.route('/random-story/')
+@APP.route('/random/')
 def random_story():
     print(NEWS_URLS)
     if NEWS_URLS:
