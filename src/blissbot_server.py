@@ -89,9 +89,7 @@ def share_with_another_user(payload):
     print('Entity: {}, Real Name: {}'.format(entity_id, real_name))
     post_message_api_call_args = {
         'channel': (user_name if entity_id[0] == 'U' else entity_id),
-        'attachments': None,
         'text': article_url,
-        'blocks': None,
         'unfurl_links': True
     }
 
