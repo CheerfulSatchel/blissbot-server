@@ -1,3 +1,4 @@
 Flask-API
 beautifulsoup4
 urllib3
+slackclient
