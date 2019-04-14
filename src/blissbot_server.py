@@ -90,7 +90,7 @@ def share_with_another_entity(payload):
     # TODO: Handle post message response
 
     payload['original_message']['attachments'].append(
-        {'text': 'Shared with {}'.format(entity_response['real_name'])})
+        {'text': 'Shared with <https://slack.com/app_redirect?channel={}|{}>'.format(entity_response['redirect_channel'], entity_response['real_name'])})
 
 
 if __name__ == '__main__':
