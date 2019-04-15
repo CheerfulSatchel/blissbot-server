@@ -77,7 +77,7 @@ def share_with_another_entity(payload):
     entity_response = get_entity_details(SLACK_BOT_CLIENT, entity_id)
 
     post_message_api_call_args = {
-        'channel': entity_response['channel'],
+        'channel': entity_response['redirect_channel'],
         'text': article_url,
         'unfurl_links': True
     }
