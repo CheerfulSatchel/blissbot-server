@@ -71,8 +71,6 @@ def failure_message():
 
 
 def share_with_another_entity(payload):
-    print('PAYLOAD')
-    print(payload)
     entity_id = payload['actions'][0]['selected_options'][0]['value']
     article_url = payload['original_message']['attachments'][0]['title_link']
     recipient_domain = payload['team']['domain']
