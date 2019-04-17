@@ -2,7 +2,8 @@ def get_entity_details(slack_bot_client, entity_id):
     entity_details = {
         'channel': '',
         'real_name': '',
-        'redirect_channel': ''
+        'redirect_channel': '',
+        'as_user': False
     }
 
     # Handle user
@@ -12,9 +13,11 @@ def get_entity_details(slack_bot_client, entity_id):
             user=entity_id
         )
         if users_info_response['ok']:
-            entity_details['channel'] = users_info_response['user']['name']
+            entity_details['channel'] = '@' + \
+                users_info_response['user']['name']
             entity_details['real_name'] = users_info_response['user']['real_name']
             entity_details['redirect_channel'] = users_info_response['user']['id']
+            entity_details['as_user'] = True
             return entity_details
         else:
             print('SEND NO USER FOUND MESSAGE')
