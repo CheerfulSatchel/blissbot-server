@@ -71,15 +71,20 @@ def failure_message():
 
 
 def share_with_another_entity(payload):
+    print('PAYLOAD')
+    print(payload)
     entity_id = payload['actions'][0]['selected_options'][0]['value']
     article_url = payload['original_message']['attachments'][0]['title_link']
+    recipient_domain = payload['team']['domain']
+    sender = payload['user']['name']
 
     entity_response = get_entity_details(SLACK_BOT_CLIENT, entity_id)
 
     post_message_api_call_args = {
-        'channel': entity_response['redirect_channel'],
-        'text': article_url,
-        'unfurl_links': True
+        'channel': entity_response['channel'],
+        'text': '{} sent :heart:\n\n{}'.format(sender, article_url),
+        'unfurl_links': True,
+        'as_user': entity_response['as_user']
     }
 
     post_message_response = SLACK_BOT_CLIENT.api_call(
@@ -89,8 +94,9 @@ def share_with_another_entity(payload):
 
     # TODO: Handle post message response
 
-    payload['original_message']['attachments'].append(
-        {'text': 'Shared with <https://slack.com/app_redirect?channel={}|{}>'.format(entity_response['redirect_channel'], entity_response['real_name'])})
+    payload['original_message']['attachments'].append({
+        'text': 'Shared with <https://{}.slack.com/messages/{}|{}>'.format(recipient_domain, entity_response['redirect_channel'], entity_response['real_name'])
+    })
 
 
 if __name__ == '__main__':
