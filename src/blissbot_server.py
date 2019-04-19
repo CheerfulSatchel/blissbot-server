@@ -2,7 +2,7 @@ import random
 import json
 import os
 
-from utilities.sitescraper import retrieve_articles
+from utilities.sitescraper import retrieve_random_article
 # TODO: Use class below for modularizing code
 from utilities.slack_helper import get_entity_details
 from flask_api import FlaskAPI
@@ -13,20 +13,12 @@ SLACK_BOT_CLIENT = SlackClient(os.environ.get('SLACK_BOT_ACCESS_TOKEN'))
 
 APP = FlaskAPI(__name__)
 
-NEWS_URLS = retrieve_articles()
-
-
-@APP.route('/example/')
-def example():
-    return {'hello': 'world'}
-
 
 @APP.route('/random/')
-def random_story():
-    print(NEWS_URLS)
-    if NEWS_URLS:
-        random_idx = random.randint(0, len(NEWS_URLS) - 1)
-        return success_message(NEWS_URLS[random_idx])
+def random_article():
+    random_article = retrieve_random_article()
+    if random_article:
+        return success_message(random_article)
     else:
         return failure_message()
 
