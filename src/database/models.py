@@ -13,10 +13,8 @@ class Article(Base):
     meta_content = Column(String)
 
     def __repr__(self):
-        return '<Article(id="%s", title="%s", image_url="%s", title_link="%s", category="%s", meta_content="%s"'
-        % (self.id,
-           self.title,
-           self.image_url,
-           self.title_link,
-           self.category,
-           self.meta_content)
+        return '<Article(id="%s", title="%s", image_url="%s", title_link="%s", category="%s", meta_content="%s"' % (self.id, self.title,
+                                                                                                                    self.image_url,
+                                                                                                                    self.title_link,
+                                                                                                                    self.category,
+                                                                                                                    self.meta_content)
