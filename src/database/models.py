@@ -6,11 +6,11 @@ class Article(Base):
     __tablename__ = 'articles'
 
     id = Column(Integer, primary_key=True)
-    title = Column(String)
-    image_url = Column(String)
-    title_link = Column(String)
-    category = Column(String)
-    meta_content = Column(String)
+    title = Column(String(255))
+    image_url = Column(String(255))
+    title_link = Column(String(255))
+    category = Column(String(255))
+    meta_content = Column(String(255))
 
     def __repr__(self):
         return '<Article(id="%s", title="%s", image_url="%s", title_link="%s", category="%s", meta_content="%s"' % (self.id, self.title,
