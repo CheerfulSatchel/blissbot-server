@@ -2,8 +2,8 @@ import random
 import json
 import os
 
-from utilities.sitescraper import retrieve_random_article
-# TODO: Use class below for modularizing code
+from database.models import Article
+from database.database import Base, Database_Session
 from utilities.slack_helper import get_entity_details
 from flask_api import FlaskAPI
 from flask import request, make_response, Response
@@ -14,17 +14,17 @@ SLACK_BOT_CLIENT = SlackClient(os.environ.get('SLACK_BOT_ACCESS_TOKEN'))
 APP = FlaskAPI(__name__)
 
 
-@APP.route('/random/')
-def random_article():
-    random_article = retrieve_random_article()
-    if random_article:
-        return success_message(random_article)
-    else:
-        return failure_message()
+# @APP.route('/random/')
+# def random_article():
+#     random_article = retrieve_random_article()
+#     if random_article:
+#         return success_message(random_article)
+#     else:
+#         return failure_message()
 
 
-@APP.route('/update/message', methods=['POST'])
-def update_message():
+@APP.route('/handle-interaction/', methods=['POST'])
+def handle_interaction():
 
     payload = json.loads(request.data['payload'])
 
@@ -45,6 +45,23 @@ def update_message():
     )
 
     return make_response("", 200)
+
+
+@APP.route('/load/', methods=['POST'])
+def load_article():
+    payload = request.data
+
+    title = payload['title']
+    image_url = payload['image_url']
+    title_link = payload['title_link']
+    category = payload['category']
+    meta_content = payload['meta_content']
+
+    new_article = Article(title=title, image_url=image_url, title_link=title_link,
+                          category=category, meta_content=meta_content)
+
+    Database_Session.add(new_article)
+    Database_Session.commit()
 
 
 def success_message(msg_contents):
@@ -72,7 +89,7 @@ def share_with_another_entity(payload):
 
     post_message_api_call_args = {
         'channel': entity_response['channel'],
-        'text': '{} sent :heart:\n\n{}'.format(sender, article_url),
+        'text': '{} sent :heart:\n\n{}'.format(entity_response['real_name'], article_url),
         'unfurl_links': True,
         'as_user': entity_response['as_user']
     }
