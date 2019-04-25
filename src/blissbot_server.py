@@ -4,6 +4,7 @@ import os
 
 from database.models import Article
 from database.database import Base, Database_Session
+from database.handler import fetch_random_article
 from utilities.slack_helper import get_entity_details
 from flask_api import FlaskAPI
 from flask import request, make_response, Response
@@ -14,13 +15,13 @@ SLACK_BOT_CLIENT = SlackClient(os.environ.get('SLACK_BOT_ACCESS_TOKEN'))
 APP = FlaskAPI(__name__)
 
 
-# @APP.route('/random/')
-# def random_article():
-#     random_article = retrieve_random_article()
-#     if random_article:
-#         return success_message(random_article)
-#     else:
-#         return failure_message()
+@APP.route('/random/')
+def random_article():
+    article = fetch_random_article()
+    if article:
+        return success_message(str(article.__repr__))
+    else:
+        return failure_message()
 
 
 @APP.route('/handle-interaction/', methods=['POST'])
@@ -62,6 +63,8 @@ def load_article():
 
     Database_Session.add(new_article)
     Database_Session.commit()
+
+    return make_response("", 200)
 
 
 def success_message(msg_contents):
