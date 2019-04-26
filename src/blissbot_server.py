@@ -5,7 +5,7 @@ import os
 from database.models import Article
 from database.database import Base, Database_Session
 from database.handler import fetch_random_article
-from utilities.slack_helper import get_entity_details, post_message
+from utilities.slack_helper import get_entity_details, post_message. update_message
 
 from flask_api import FlaskAPI
 from flask import request, make_response, Response
@@ -48,10 +48,8 @@ def handle_interaction():
         'attachments': attachments
     }
 
-    update_message_response = SLACK_BOT_CLIENT.api_call(
-        'chat.update',
-        **update_message_api_call_args
-    )
+    update_message_response = udpate_message(
+        SLACK_BOT_CLIENT, update_message_api_call_args)
 
     if update_message_response['ok']:
         return success_message('Updated message in channel {}'.format(channel))
@@ -87,20 +85,6 @@ def load_article():
         return error_message('Could not load {}'.format(new_article))
 
 
-def success_message(msg_contents):
-    return Response(json.dumps({
-        'ok': True,
-        'body': 'SUCCESS: {}'.format(msg_contents)
-    }), mimetype='application/json')
-
-
-def error_message(msg_contents):
-    return Response(json.dumps({
-        'ok': False,
-        'body': 'ERROR: {}'.format(msg_contents)
-    }), mimetype='application/json')
-
-
 def share_with_another_entity(payload):
     entity_id = payload['actions'][0]['selected_options'][0]['value']
     article_url = payload['original_message']['attachments'][0]['title_link']
@@ -124,6 +108,20 @@ def share_with_another_entity(payload):
     payload['original_message']['attachments'].append({
         'text': 'Shared with <https://{}.slack.com/messages/{}|{}>'.format(recipient_domain, entity_response['redirect_channel'], entity_response['real_name'])
     })
+
+
+def success_message(msg_contents):
+    return Response(json.dumps({
+        'ok': True,
+        'body': 'SUCCESS: {}'.format(msg_contents)
+    }), mimetype='application/json')
+
+
+def error_message(msg_contents):
+    return Response(json.dumps({
+        'ok': False,
+        'body': 'ERROR: {}'.format(msg_contents)
+    }), mimetype='application/json')
 
 
 if __name__ == '__main__':

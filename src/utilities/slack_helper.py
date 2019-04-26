@@ -53,3 +53,12 @@ def post_message(slack_bot_client, api_call_args):
     )
 
     return post_message_response
+
+
+def update_message(slack_bot_client, api_call_args):
+    update_message_response = slack_bot_client.api_call(
+        'chat.update',
+        **api_call_args
+    )
+
+    return update_message_response
