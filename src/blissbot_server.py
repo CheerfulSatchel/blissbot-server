@@ -5,7 +5,8 @@ import os
 from database.models import Article
 from database.database import Base, Database_Session
 from database.handler import fetch_random_article
-from utilities.slack_helper import get_entity_details
+from utilities.slack_helper import get_entity_details, post_message
+
 from flask_api import FlaskAPI
 from flask import request, make_response, Response
 from slackclient import SlackClient
@@ -28,7 +29,7 @@ def random_article():
         }
         return success_message(payload)
     else:
-        return failure_message()
+        return error_message('Failed to fetch random article :-(')
 
 
 @APP.route('/handle-interaction/', methods=['POST'])
@@ -52,7 +53,10 @@ def handle_interaction():
         **update_message_api_call_args
     )
 
-    return make_response("", 200)
+    if update_message_response['ok']:
+        return success_message('Updated message in channel {}'.format(channel))
+    else:
+        return error_message('Could not update message in channel {}'.format(channel))
 
 
 @APP.route('/load/', methods=['POST'])
@@ -68,24 +72,32 @@ def load_article():
     new_article = Article(title=title, image_url=image_url, title_link=title_link,
                           category=category, meta_content=meta_content)
 
-    Database_Session.add(new_article)
-    Database_Session.commit()
+    try:
+        Database_Session.add(new_article)
+        Database_Session.commit()
 
-    return make_response("", 200)
+        return success_message('Loaded: {}'.format(new_article))
+
+    except:
+        Database_Session.rollback()
+
+    finally:
+        Database_Session.close()
+
+        return error_message('Could not load {}'.format(new_article))
 
 
 def success_message(msg_contents):
     return Response(json.dumps({
         'ok': True,
-        'body': msg_contents
+        'body': 'SUCCESS: {}'.format(msg_contents)
     }), mimetype='application/json')
 
 
-def failure_message():
-    # TODO: Better body error messages LOL
+def error_message(msg_contents):
     return Response(json.dumps({
         'ok': False,
-        'body': 'Something went wrong!'
+        'body': 'ERROR: {}'.format(msg_contents)
     }), mimetype='application/json')
 
 
@@ -104,10 +116,8 @@ def share_with_another_entity(payload):
         'as_user': entity_response['as_user']
     }
 
-    post_message_response = SLACK_BOT_CLIENT.api_call(
-        'chat.postMessage',
-        **post_message_api_call_args
-    )
+    post_message_response = post_message(
+        SLACK_BOT_CLIENT, **post_message_api_call_args)
 
     # TODO: Handle post message response
 
