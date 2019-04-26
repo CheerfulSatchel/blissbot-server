@@ -44,3 +44,12 @@ def get_entity_details(slack_bot_client, entity_id):
     else:
         print('Oh noooose')
         return None
+
+
+def post_message(slack_bot_client, api_call_args):
+    post_message_response = slack_bot_client.api_call(
+        'chat.postMessage',
+        **api_call_args
+    )
+
+    return post_message_response
