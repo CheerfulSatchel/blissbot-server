@@ -19,7 +19,14 @@ APP = FlaskAPI(__name__)
 def random_article():
     article = fetch_random_article()
     if article:
-        return success_message(str(article.__repr__))
+        payload = {
+            'image_url': article.image_url,
+            'title': article.title,
+            'title_link': article.title_link,
+            'category': article.category,
+            'meta_content': article.meta_content
+        }
+        return success_message(payload)
     else:
         return failure_message()
 
