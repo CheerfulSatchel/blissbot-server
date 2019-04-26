@@ -5,7 +5,7 @@ import os
 from database.models import Article
 from database.database import Base, Database_Session
 from database.handler import fetch_random_article
-from utilities.slack_helper import get_entity_details, post_message. update_message
+from utilities.slack_helper import get_entity_details, post_message, update_message
 
 from flask_api import FlaskAPI
 from flask import request, make_response, Response
@@ -27,9 +27,9 @@ def random_article():
             'category': article.category,
             'meta_content': article.meta_content
         }
-        return success_message(payload)
+        return success_message(body=payload, msg='Fetched a random article!!!')
     else:
-        return error_message('Failed to fetch random article :-(')
+        return error_message(msg='Failed to fetch random article :-(')
 
 
 @APP.route('/handle-interaction/', methods=['POST'])
@@ -52,9 +52,9 @@ def handle_interaction():
         SLACK_BOT_CLIENT, update_message_api_call_args)
 
     if update_message_response['ok']:
-        return success_message('Updated message in channel {}'.format(channel))
+        return success_message(msg='Updated message in channel {}'.format(channel))
     else:
-        return error_message('Could not update message in channel {}'.format(channel))
+        return error_message(msg='Could not update message in channel {}'.format(channel))
 
 
 @APP.route('/load/', methods=['POST'])
@@ -74,7 +74,7 @@ def load_article():
         Database_Session.add(new_article)
         Database_Session.commit()
 
-        return success_message('Loaded: {}'.format(new_article))
+        return success_message(body=new_article, msg='Loaded: {}'.format(new_article))
 
     except:
         Database_Session.rollback()
@@ -83,6 +83,24 @@ def load_article():
         Database_Session.close()
 
         return error_message('Could not load {}'.format(new_article))
+
+
+@APP.route('/post-message/', methods=['POST'])
+def post_message_call():
+    print(request.data)
+    post_message_api_call_args = request.data
+
+    print('POSTING FOR: {}'.format(post_message_api_call_args))
+
+    post_message_response = post_message(
+        SLACK_BOT_CLIENT, post_message_api_call_args)
+
+    print(post_message_response)
+
+    if post_message_response['ok']:
+        return success_message(msg='Posted message~')
+    else:
+        return error_message(msg='Failed to post message...')
 
 
 def share_with_another_entity(payload):
@@ -101,7 +119,7 @@ def share_with_another_entity(payload):
     }
 
     post_message_response = post_message(
-        SLACK_BOT_CLIENT, **post_message_api_call_args)
+        SLACK_BOT_CLIENT, post_message_api_call_args)
 
     # TODO: Handle post message response
 
@@ -110,17 +128,19 @@ def share_with_another_entity(payload):
     })
 
 
-def success_message(msg_contents):
+def success_message(body=None, msg=''):
     return Response(json.dumps({
         'ok': True,
-        'body': 'SUCCESS: {}'.format(msg_contents)
+        'msg': 'SUCCESS: {}'.format(msg),
+        'body': body
     }), mimetype='application/json')
 
 
-def error_message(msg_contents):
+def error_message(body=None, msg=None):
     return Response(json.dumps({
         'ok': False,
-        'body': 'ERROR: {}'.format(msg_contents)
+        'msg': 'ERROR: {}'.format(msg_contents),
+        'body': body
     }), mimetype='application/json')
 
 
